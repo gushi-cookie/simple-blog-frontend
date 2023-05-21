@@ -4,13 +4,13 @@ import { state, closeModal } from '../services/ModalService'
 
 <template>
     <Teleport to="body">
-        <div class="main-modal__backdrop" :class="{ 'main-modal__closed': !state.isOpen }">
-            <div class="main-modal__container card">
-                <div class="main-modal__header card-header">
+        <div class="main-modal__backdrop" :class="{ 'main-modal__closed': !state.isOpen }" @click="closeModal">
+            <div class="main-modal__container" @click.stop>
+                <div class="main-modal__header">
                     <span class="main-modal__title">{{ state.title }}</span>
-                    <button class="main-modal__btn-close btn-close" @click="closeModal()"></button>
+                    <div class="main-modal__btn-close" @click="closeModal()" v-shadow="2"></div>
                 </div>
-                <div class="main-modal__body card-body">
+                <div class="main-modal__body">
                     <component :is="state.component" />
                 </div>
             </div>
@@ -41,30 +41,28 @@ import { state, closeModal } from '../services/ModalService'
 .main-modal__container {
     max-width: 650px;
     height: auto;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
 }
 
 .main-modal__header {
     display: flex;
     align-items: center;
+    color: rgba(0, 0, 0, 0.54);
+    padding: 8px 16px;
+    border-bottom: 1px solid #e0e0e0;
 }
 .main-modal__title {
     margin-right: auto;
 }
 .main-modal__btn-close {
     margin-left: auto;
-}
-
-
-@media (max-width: 500px) {
-.main-modal__container {
-    max-width: none;
-    width: 95%;
-    height: 90% !important;
-}
-.main-modal__body {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+    background-image: url('/icons/round-close.svg');
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    cursor: pointer;
 }
 </style>
