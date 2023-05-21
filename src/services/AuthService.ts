@@ -1,6 +1,6 @@
-import { computed, ref, reactive } from 'vue';
-import axios, { type AxiosError } from 'axios';
-
+import { computed, reactive } from 'vue';
+import exitCodes from '@/utils/exit-codes';
+import axios from 'axios';
 
 export interface AuthData {
     userId: number | null,
@@ -34,13 +34,28 @@ export function logoutUser() {
 
 /**
  * @throws { AxiosError }
+ * @returns AuthResponse or exit code.
  */
-export async function loginUser(nickname: string, password: string): Promise<AuthResponse> {
-    let res = await axios.post('/api/login', { nickname, password });
+export async function loginUser(nickname: string, password: string): Promise<AuthResponse | number> {
+    let res;
+    try {
+        res = await axios.post('/api/login', { nickname, password });
+    } catch(error: any) {
+        console.log(error);
+        if(error.response && error.response.data && error.response.data.code) {
+            return error.response.data.code;
+        } else {
+            return exitCodes.UNKNOWN_ERROR;
+        }
+    }
 
-    if(!res.data || !res.data.token) throw new Error('Couldn\'t find auth data in the response with 200 status code.');
+    if(!res.data || !res.data.token) {
+        console.error('Couldn\'t find auth data in the response with 200 status code.');
+        console.log(res);
+        return exitCodes.UNKNOWN_ERROR;
+    }
+
     let resData = (res.data as AuthResponse);
-
     data.userId = resData.user.id;
     data.nickname = resData.user.nickname;
     data.token = resData.token;
@@ -50,14 +65,28 @@ export async function loginUser(nickname: string, password: string): Promise<Aut
 
 /**
  * @throws { AxiosError }
+ * @returns AuthResponse or exit code.
  */
-export async function registerUser(nickname: string, password: string): Promise<AuthResponse> {
-    let res = await axios.post('/api/register', { nickname, password });
+export async function registerUser(nickname: string, password: string): Promise<AuthResponse | number> {
+    let res;
+    try {
+        res = await axios.post('/api/register', { nickname, password });
+    } catch(error: any) {
+        console.log(error);
+        if(error.response && error.response.data && error.response.data.code) {
+            return error.response.data.code;
+        } else {
+            return exitCodes.UNKNOWN_ERROR;
+        }
+    }
 
-    if(!res.data || !res.data.token) throw new Error('Couldn\'t find auth data in the response with 200 status code.');
+    if(!res.data || !res.data.token) {
+        console.error('Couldn\'t find auth data in the response with 200 status code.');
+        console.log(res);
+        return exitCodes.UNKNOWN_ERROR;
+    }
 
     let resData = (res.data as AuthResponse);
-
     data.userId = resData.user.id;
     data.nickname = resData.user.nickname;
     data.token = resData.token;
