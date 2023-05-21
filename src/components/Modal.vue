@@ -11,7 +11,7 @@ import { state, closeModal } from '../services/ModalService'
                     <div class="main-modal__btn-close" @click="closeModal()" v-shadow="2"></div>
                 </div>
                 <div class="main-modal__body">
-                    <component :is="state.component" />
+                    <component :is="state.component" v-bind="state.props"/>
                 </div>
             </div>
         </div>
