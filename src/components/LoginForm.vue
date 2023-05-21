@@ -2,6 +2,7 @@
 import * as AuthService from '@/services/AuthService';
 import * as ModalService from '@/services/ModalService';
 import { ref } from 'vue';
+import exitCodes from '@/utils/exit-codes';
 
 const nickname = ref<string>('');
 const password = ref<string>('');
@@ -15,12 +16,19 @@ function showSnackbar(message: string) {
 };
 
 async function onSubmit() {
-    try {
-        await AuthService.loginUser(nickname.value, password.value);
+    let result = await AuthService.loginUser(nickname.value, password.value);
+
+    let map = new Map<number, string>([
+        [exitCodes.INVALID_PARAMS, 'Passed parameters are invalid.'],
+        [exitCodes.INVALID_AUTH, 'Incorrect username or password.'],
+        [exitCodes.SERVER_ERROR, 'Server error has occurred. Try again.'],
+        [exitCodes.UNKNOWN_ERROR, 'Unknown error has occurred. Please try again.'],
+    ]);
+
+    if(typeof result === 'number' && map.has(result)) {
+        showSnackbar(map.get(result) as string);
+    } else {
         ModalService.closeModal();
-    } catch(error) {
-        showSnackbar('Error occurred. Please try again.');
-        console.log(error);
     }
 };
 </script>
