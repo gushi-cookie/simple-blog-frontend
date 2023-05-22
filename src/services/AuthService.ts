@@ -1,6 +1,7 @@
 import { computed, reactive } from 'vue';
 import exitCodes from '@/utils/exit-codes';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export interface AuthData {
     userId: number | null,
@@ -30,6 +31,7 @@ export function logoutUser() {
     data.userId = null;
     data.nickname = null;
     data.token = null;
+    Cookies.remove('auth_data');
 };
 
 /**
@@ -59,6 +61,7 @@ export async function loginUser(nickname: string, password: string): Promise<Aut
     data.userId = resData.user.id;
     data.nickname = resData.user.nickname;
     data.token = resData.token;
+    Cookies.set('auth_data', JSON.stringify(data));
 
     return resData;
 };
@@ -90,6 +93,18 @@ export async function registerUser(nickname: string, password: string): Promise<
     data.userId = resData.user.id;
     data.nickname = resData.user.nickname;
     data.token = resData.token;
+    Cookies.set('auth_data', JSON.stringify(data));
 
     return resData;
 };
+
+
+
+
+let authCookie = Cookies.get('auth_data');
+if(authCookie) {
+    let authData = JSON.parse(authCookie) as AuthData;
+    data.nickname = authData.nickname;
+    data.token = authData.token;
+    data.userId = authData.userId;
+}
