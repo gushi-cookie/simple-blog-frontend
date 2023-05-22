@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import Auth from './components/Auth.vue';
 import Modal from './components/Modal.vue';
+import PostsList from './components/PostsList.vue';
+import * as ModalService from './services/ModalService';
+import { isSignedIn } from './services/AuthService';
 </script>
 
 <template>
@@ -8,11 +11,17 @@ import Modal from './components/Modal.vue';
     <div class="header__logo">
       <a class="header__logo-link" href="/">Simple Blog</a>
     </div>
+    <ui-button 
+      v-if="isSignedIn"
+      @click="ModalService.openModal('Create post', 'PostForm')"
+      raised
+      class="header__post-btn"
+    >create post</ui-button>
     <auth/>
   </header>
 
   <main>
-
+    <posts-list/>
   </main>
   <modal/>
 </template>
@@ -25,6 +34,10 @@ import Modal from './components/Modal.vue';
 
 .header .auth {
   margin-left: auto;
+}
+
+.header__post-btn {
+  margin: 0 auto;
 }
 
 .header__logo {
