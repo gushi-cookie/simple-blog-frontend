@@ -78,7 +78,6 @@ export async function fetchPosts(pageNumber: number): Promise<PostsListResponse 
     return data;
 };
 
-
 /**
  * @returns File or exit code.
  */
@@ -93,4 +92,9 @@ export async function fetchFile(url: string, fileName: string): Promise<File | n
     }
 
     return new File(res.data, fileName);
+};
+
+export async function toFirstPage(): Promise<PostsListResponse | number> {
+    pageNumber.value = 0;
+    return fetchPosts(0);
 };

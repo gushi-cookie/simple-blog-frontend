@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, shallowRef } from 'vue';
 import { type PostItem } from '@/services/PostsListService';
-import { fetchFile } from '@/services/PostsListService';
+import { fetchFile, toFirstPage } from '@/services/PostsListService';
 import { closeModal } from '@/services/ModalService';
 import * as AuthService from '@/services/AuthService';
 import axios from 'axios';
@@ -15,6 +15,14 @@ const fileInput = ref<HTMLElement>();
 const file = shallowRef<File>();
 
 
+const snackbarOpen = ref(false);
+const snackbarMessage = ref('');
+function showSnackbar(message: string) {
+    snackbarMessage.value = message;
+    snackbarOpen.value = true;
+};
+
+
 onMounted(async () => {
     if(!editMode) return;
 
@@ -25,18 +33,27 @@ onMounted(async () => {
 });
 
 async function onSubmit() {
-    if(!file.value && !message.value) return;
+    if(!file.value && !message.value) {
+        return showSnackbar('Cannot submit empty post!');
+    }
 
     let fd = new FormData();
     if(file.value) fd.append('file', file.value, file.value.name);
     if(message.value) fd.append('message', message.value);
 
-    await axios.post('/api/blog-post', fd, {
-        headers: {
-            'Authorization': AuthService.data.token,
-            'Content-Type': 'multipart/form-data',
-        }
-    });
+    let headers = {
+        'Authorization': AuthService.data.token,
+        'Content-Type': 'multipart/form-data',
+    };
+
+    try {
+        await axios.post('/api/blog-post', fd, { headers });
+        closeModal();
+        toFirstPage();
+    } catch(error) {
+        console.log(error);
+        return showSnackbar('Some error just happened! Try again.');
+    }
 };
 
 function onFileUpload(event: any) {
@@ -49,8 +66,15 @@ function fileToObjectURL() {
 </script>
 
 <template>
+<ui-snackbar
+    :message="snackbarMessage"
+    v-model="snackbarOpen"
+    action-button-text="close"
+    position="top"
+></ui-snackbar>
+
 <form class="post-form" @submit.prevent="onSubmit">
-    <div class="post-form__media-cont">
+    <div class="post-form__media-cont" v-if="file">
         <img 
             class="post-form__img"
             v-if="file && file.type.indexOf('image') >= 0"
@@ -64,17 +88,15 @@ function fileToObjectURL() {
         ></video>
     </div>
 
-    <ui-textfield v-model="message" outlined input-type="textarea" rows="8">
+    <ui-textfield v-model="message" outlined input-type="textarea" rows="8" class="post-form__textarea">
         Post message
     </ui-textfield>
 
-    <div class="post-form__media-controls">
+    <div class="post-form__controls">
         <input type="file" accept="image/*, video/*" ref="fileInput" @change="onFileUpload" hidden>
         <ui-button raised v-if="file" @click="file=undefined">remove media</ui-button>
         <ui-button raised v-if="!file" @click="fileInput?.click()">upload media</ui-button>
-    </div>
 
-    <div class="post-form__post-controls">
         <ui-button raised native-type="submit" v-if="!editMode">submit</ui-button>
         <ui-button raised v-if="editMode">apply</ui-button>
         <ui-button raised v-if="editMode">delete post</ui-button>
@@ -83,5 +105,34 @@ function fileToObjectURL() {
 </template>
 
 <style>
+.post-form {
+    width: 400px;
+    padding-top: 16px;
+}
 
+
+.post-form__media-cont {
+    padding-bottom: 16px;
+}
+
+.post-form__img,
+.post-form__video {
+    display: block;
+    width: 45%;
+    margin: 0 auto;
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+}
+
+
+.post-form__textarea {
+    width: 100%;
+}
+
+.post-form__controls {
+    padding: 16px 8px;
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
 </style>
