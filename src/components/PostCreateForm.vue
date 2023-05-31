@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue';
-import { type PostItem } from '@/services/PostsListService';
-import { fetchFile, toFirstPage } from '@/services/PostsListService';
+import {  ref, shallowRef } from 'vue';
+import { toFirstPage } from '@/services/PostsListService';
 import { closeModal } from '@/services/ModalService';
 import * as AuthService from '@/services/AuthService';
 import axios from 'axios';
 
 
-const postToEdit = defineProps<PostItem>();
-const editMode = computed(() => postToEdit.id !== undefined);
-
 const message = ref('');
-const fileInput = ref<HTMLElement>();
 const file = shallowRef<File>();
+const fileInput = ref<HTMLElement>();
 
 
 const snackbarOpen = ref(false);
@@ -23,31 +19,21 @@ function showSnackbar(message: string) {
 };
 
 
-onMounted(async () => {
-    if(!editMode) return;
-
-    if(postToEdit.message) message.value = postToEdit.message;
-    if(postToEdit.file) {
-        console.log(await fetchFile(postToEdit.file.url, postToEdit.file.name));
-    }
-});
-
 async function onSubmit() {
-    if(!file.value && !message.value) {
-        return showSnackbar('Cannot submit empty post!');
-    }
+    if(!file.value && !message.value) return showSnackbar('Cannot submit empty post!');
 
-    let fd = new FormData();
-    if(file.value) fd.append('file', file.value, file.value.name);
-    if(message.value) fd.append('message', message.value);
+
+    let formData = new FormData();
+    if(file.value) formData.append('file', file.value, file.value.name);
+    if(message.value) formData.append('message', message.value);
+
 
     let headers = {
         'Authorization': AuthService.data.token,
         'Content-Type': 'multipart/form-data',
     };
-
     try {
-        await axios.post('/api/blog-post', fd, { headers });
+        await axios.post('/api/blog-post', formData, { headers });
         closeModal();
         toFirstPage();
     } catch(error) {
@@ -97,9 +83,7 @@ function fileToObjectURL() {
         <ui-button raised v-if="file" @click="file=undefined">remove media</ui-button>
         <ui-button raised v-if="!file" @click="fileInput?.click()">upload media</ui-button>
 
-        <ui-button raised native-type="submit" v-if="!editMode">submit</ui-button>
-        <ui-button raised v-if="editMode">apply</ui-button>
-        <ui-button raised v-if="editMode">delete post</ui-button>
+        <ui-button raised native-type="submit">submit</ui-button>
     </div>
 </form>
 </template>
