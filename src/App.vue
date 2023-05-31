@@ -13,7 +13,7 @@ import { isSignedIn } from './services/AuthService';
     </div>
     <ui-button 
       v-if="isSignedIn"
-      @click="ModalService.openModal('Create post', 'PostForm')"
+      @click="ModalService.openModal('Create post', 'PostCreateForm')"
       raised
       class="header__post-btn"
     >create post</ui-button>
