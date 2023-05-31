@@ -98,3 +98,7 @@ export async function toFirstPage(): Promise<PostsListResponse | number> {
     pageNumber.value = 0;
     return fetchPosts(0);
 };
+
+export async function updatePage(): Promise<PostsListResponse | number> {
+    return fetchPosts(pageNumber.value);
+};
