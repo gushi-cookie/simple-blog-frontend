@@ -10,7 +10,7 @@ const date = computed(() => dateFormat(props.date, 'dd/mm/yyyy h:MM'));
 
 
 function editPost() {
-    ModalService.openModal('Edit post', 'PostForm', props);
+    ModalService.openModal('Edit post', 'PostEditForm', props);
 };
 </script>
 
