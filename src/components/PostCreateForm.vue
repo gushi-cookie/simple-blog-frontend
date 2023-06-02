@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {  ref, shallowRef } from 'vue';
-import { toFirstPage } from '@/services/PostsListService';
+import { toFirstPage, fetchPagesOverview } from '@/services/PostsListService';
 import { closeModal } from '@/services/ModalService';
 import * as AuthService from '@/services/AuthService';
 import axios from 'axios';
@@ -36,6 +36,7 @@ async function onSubmit() {
         await axios.post('/api/blog-post', formData, { headers });
         closeModal();
         toFirstPage();
+        fetchPagesOverview();
     } catch(error) {
         console.log(error);
         return showSnackbar('Some error just happened! Try again.');

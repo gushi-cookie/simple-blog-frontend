@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, shallowRef } from 'vue';
 import { MediaType, type PostItem } from '@/services/PostsListService';
-import { updatePage } from '@/services/PostsListService';
+import { updatePage, fetchPagesOverview } from '@/services/PostsListService';
 import { closeModal } from '@/services/ModalService';
 import * as AuthService from '@/services/AuthService';
 import axios from 'axios';
@@ -92,6 +92,7 @@ async function onDelete() {
         await axios.delete(`/api/blog-post/${post.id}`, { headers });
         closeModal();
         updatePage();
+        fetchPagesOverview();
     } catch(error) {
         console.log(error);
         showSnackbar('Some error just happened! Try again.');
