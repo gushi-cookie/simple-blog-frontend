@@ -6,7 +6,7 @@ import * as ModalService from '@/services/ModalService';
 import * as AuthService from '@/services/AuthService';
 
 const props = defineProps<PostItem>();
-const date = computed(() => dateFormat(props.date, 'dd/mm/yyyy h:MM'));
+const date = computed(() => dateFormat(props.date, 'dd/mm/yyyy H:MM'));
 
 
 function editPost() {
