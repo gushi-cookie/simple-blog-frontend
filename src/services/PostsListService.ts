@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import exitCodes from '@/utils/exit-codes';
 
 
@@ -34,9 +34,10 @@ export interface PostsListResponse {
 
 
 export const posts = ref<PostItem[]>([]);
-export const pageNumber = ref<number>(0);
+export const pageNumber = ref<number>(1);
 export const pagesCount = ref<number>(0);
-export const pagination = ref<number>(0);
+export const pagination = ref<number>(10);
+
 
 /**
  * @returns Object or exit code.
@@ -95,10 +96,15 @@ export async function fetchFile(url: string, fileName: string): Promise<File | n
 };
 
 export async function toFirstPage(): Promise<PostsListResponse | number> {
-    pageNumber.value = 0;
+    pageNumber.value = 1;
     return fetchPosts(0);
 };
 
 export async function updatePage(): Promise<PostsListResponse | number> {
     return fetchPosts(pageNumber.value);
 };
+
+
+watch(pageNumber, (newNum) => {
+    fetchPosts(newNum);
+});
